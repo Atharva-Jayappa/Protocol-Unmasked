@@ -17,6 +17,9 @@ import { CompleteView } from './components/game/CompleteView';
 // GM View
 import { GameMasterView } from './components/gm/GameMasterView';
 
+// Audio
+import { AudioPlayer } from './components/AudioPlayer';
+
 // Main game component that handles view switching
 function GameApp() {
   const connected = useSocket();
@@ -49,6 +52,7 @@ function GameApp() {
 function App() {
   return (
     <BrowserRouter>
+      <AudioPlayer />
       <Routes>
         {/* Game Master View */}
         <Route path="/central-command" element={<GameMasterView />} />
