@@ -4,8 +4,21 @@ import { io, Socket } from 'socket.io-client';
 import QRCode from 'react-qr-code';
 import { DrawingGrid } from './DrawingGrid';
 import { SquadProgress } from './SquadProgress';
+import { Leaderboard } from './Leaderboard';
 
 type Phase = 'start' | 'tutorial' | 'lobby' | 'chain' | 'heist' | 'getaway' | 'complete';
+
+interface LeaderboardEntry {
+    id: string;
+    name: string;
+    currentView: string;
+    progressPercent: number;
+    tasksCompleted: number;
+    finishPosition: number | null;
+    completedAt: number | null;
+    playerCount: number;
+    isComplete: boolean;
+}
 
 interface GameState {
     phase: Phase;
@@ -27,6 +40,8 @@ interface GameState {
         isLoopComplete: boolean;
         progress: number;
         currentMinigame: string | null;
+        currentView?: string;
+        finishPosition?: number | null;
         players: Array<{
             id: string;
             nickname: string;
@@ -34,6 +49,7 @@ interface GameState {
             scanComplete: boolean;
         }>;
     }>;
+    leaderboard: LeaderboardEntry[];
 }
 
 const SOCKET_URL = import.meta.env.PROD
@@ -54,6 +70,7 @@ export function GameMasterView() {
         teamSize: 4,
         drawings: [],
         squads: [],
+        leaderboard: [],
     });
     const [errorSquad, setErrorSquad] = useState<string | null>(null);
 
@@ -100,6 +117,17 @@ export function GameMasterView() {
                 ...prev,
                 phase: data.phase,
             }));
+        });
+
+        newSocket.on('leaderboard_update', (leaderboard: LeaderboardEntry[]) => {
+            setGameState((prev) => ({
+                ...prev,
+                leaderboard,
+            }));
+        });
+
+        newSocket.on('squad_completed', (data: { squadId: string; position: number; totalSquads: number }) => {
+            console.log(`[GM] Squad ${data.squadId} completed at position ${data.position}`);
         });
 
         setSocket(newSocket);
@@ -544,10 +572,16 @@ export function GameMasterView() {
                                 </p>
                             </div>
 
-                            <SquadProgress
-                                squads={gameState.squads}
-                                showError={errorSquad}
-                            />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <Leaderboard entries={gameState.leaderboard} />
+                                
+                                <div>
+                                    <SquadProgress
+                                        squads={gameState.squads}
+                                        showError={errorSquad}
+                                    />
+                                </div>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>

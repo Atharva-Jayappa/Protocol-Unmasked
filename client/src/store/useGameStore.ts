@@ -38,6 +38,13 @@ export interface SquadStatus {
     allConfirmed: boolean;
 }
 
+export interface HeistResult {
+    position: number;
+    totalSquads: number;
+    isWinner: boolean;
+    tasksCompleted: number;
+}
+
 export interface GameState {
     // Connection
     socket: Socket | null;
@@ -58,6 +65,9 @@ export interface GameState {
     // Minigame Data
     clue: string | null;
     codeFragments: string[];
+
+    // Result Data
+    heistResult: HeistResult | null;
 
     // UI State
     isScanning: boolean;
@@ -118,6 +128,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     squadStatus: null,
     clue: null,
     codeFragments: [],
+    heistResult: null,
     isScanning: false,
     scanComplete: false,
     showSuccess: false,
@@ -190,9 +201,12 @@ export const useGameStore = create<GameState>((set, get) => ({
             }
         });
 
-        // Heist complete
-        socket.on('heist_complete', () => {
-            set({ currentView: 'complete' });
+        // Heist complete with result data
+        socket.on('heist_complete', (data: { position: number; totalSquads: number; isWinner: boolean; tasksCompleted: number }) => {
+            set({ 
+                currentView: 'complete',
+                heistResult: data
+            });
             get().triggerSuccess();
         });
 
@@ -207,6 +221,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                 squadStatus: null,
                 clue: null,
                 codeFragments: [],
+                heistResult: null,
                 scanComplete: false,
             });
         });

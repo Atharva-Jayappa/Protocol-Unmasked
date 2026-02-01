@@ -232,7 +232,11 @@ class GameManager {
                 const teamSize = squad.players.length;
                 this.codeFragments.set(squadId, this.generateCodeFragments(teamSize));
                 squad.setMinigame('signal_jammer');
+                squad.setView('signal_jammer');
             });
+            
+            // Broadcast initial leaderboard
+            this.io.to('gm').emit('leaderboard_update', this.getLeaderboard());
         }
 
         if (newPhase === 'getaway') {
@@ -356,6 +360,7 @@ class GameManager {
             teamSize: this.squadSize,
             drawings: this.drawings,
             squads: this.getAllSquadStatuses(),
+            leaderboard: this.getLeaderboard(),
         };
     }
 
