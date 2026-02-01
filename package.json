@@ -1,0 +1,10 @@
+{
+  "name": "protocol-unmask",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && node src/index.js & cd client && npx vite preview --host 0.0.0.0 --port 5000"
+  }
+}
