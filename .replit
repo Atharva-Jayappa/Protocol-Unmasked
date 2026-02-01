@@ -58,5 +58,5 @@ externalPort = 3002
 
 [deployment]
 deploymentTarget = "vm"
-run = ["bash", "-c", "cd server && node src/index.js & cd client && npx vite preview --host 0.0.0.0 --port 5000"]
-build = ["bash", "-c", "cd client && npm install && npm run build && cd ../server && npm install"]
+run = ["bash", "-c", "node server/src/index.js & npx --prefix client vite preview --host 0.0.0.0 --port 5000"]
+build = ["bash", "-c", "npm install --prefix client && npm install --prefix server && npm run build --prefix client"]
